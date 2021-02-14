@@ -1,4 +1,4 @@
-package com.felixwild.fahnenklauen.ui.dashboard
+package com.felixwild.fahnenklauen.ui.search
 
 import android.os.Bundle
 import android.view.LayoutInflater

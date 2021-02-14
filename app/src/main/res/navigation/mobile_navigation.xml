@@ -13,13 +13,13 @@
 
     <fragment
         android:id="@+id/navigation_search"
-        android:name="com.felixwild.fahnenklauen.ui.dashboard.DashboardFragment"
+        android:name="com.felixwild.fahnenklauen.ui.search.DashboardFragment"
         android:label="@string/title_search"
         tools:layout="@layout/fragment_search" />
 
     <fragment
         android:id="@+id/navigation_map"
-        android:name="com.felixwild.fahnenklauen.ui.notifications.NotificationsFragment"
+        android:name="com.felixwild.fahnenklauen.ui.map.MapFragment"
         android:label="@string/title_map"
         tools:layout="@layout/fragment_map" />
 </navigation>
