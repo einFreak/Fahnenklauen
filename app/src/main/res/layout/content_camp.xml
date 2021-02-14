@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="10dp">
+
+    <TextView
+        android:id="@+id/ct_StammName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="St. Konrad"
+        tools:ignore="HardcodedText"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintBottom_toBottomOf="@+id/ct_campchoosen"
+        app:layout_constraintStart_toEndOf="@+id/ct_campchoosen"
+        app:layout_constraintTop_toTopOf="@+id/ct_campchoosen"
+        />
+
+    <CheckBox
+        android:id="@+id/ct_campchoosen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <CheckedTextView
+        android:id="@+id/ct_check_kids_active"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/txt_check_kids_active"
+        app:layout_constraintStart_toEndOf="@+id/ct_campchoosen"
+        app:layout_constraintTop_toBottomOf="@+id/ct_campchoosen" />
+
+    <CheckedTextView
+        android:id="@+id/ct_check_tag_only"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/txt_check_tag_only"
+        app:layout_constraintStart_toStartOf="@+id/ct_check_kids_active"
+        app:layout_constraintTop_toBottomOf="@+id/ct_check_kids_active" />
+
+    <TextView
+        android:id="@+id/ct_number_participants"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="60"
+        app:layout_constraintStart_toStartOf="@+id/ct_check_tag_only"
+        app:layout_constraintTop_toBottomOf="@+id/ct_check_tag_only" />
+
+    <TextView
+        android:id="@+id/ct_text_number_participants"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Teilnehmer"
+        app:layout_constraintStart_toEndOf="@+id/ct_number_participants"
+        app:layout_constraintTop_toBottomOf="@+id/ct_check_tag_only" />
+
+    <Button
+        android:id="@+id/ct_btn_addit_rules"
+        style="@style/Widget.AppCompat.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:text="Zusätzliche\nRegeln"
+        app:layout_constraintBottom_toBottomOf="@+id/ct_text_number_participants"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/ct_check_tag_only"
+        app:layout_constraintTop_toBottomOf="@+id/ct_StammName"
+        tools:visibility="visible" />
+
+    <RatingBar
+        android:id="@+id/ct_ratingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ct_text_number_participants" />
+
+    <TextView
+        android:id="@+id/ct_dist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="12"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintBottom_toBottomOf="@+id/ct_StammName"
+        app:layout_constraintEnd_toStartOf="@+id/textView5"
+        app:layout_constraintTop_toTopOf="@+id/ct_StammName" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="km entfernt"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintBottom_toBottomOf="@+id/ct_dist"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/ct_StammName"
+        app:layout_constraintTop_toTopOf="@+id/ct_dist" />
+
+    <Button
+        android:id="@+id/ct_nav_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/ct_ratingBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/ct_ratingBar"
+        app:layout_constraintTop_toTopOf="@+id/ct_ratingBar" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
