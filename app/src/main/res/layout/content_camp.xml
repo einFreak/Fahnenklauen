@@ -13,13 +13,13 @@
         android:text="St. Konrad"
         tools:ignore="HardcodedText"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        app:layout_constraintBottom_toBottomOf="@+id/ct_campchoosen"
-        app:layout_constraintStart_toEndOf="@+id/ct_campchoosen"
-        app:layout_constraintTop_toTopOf="@+id/ct_campchoosen"
+        app:layout_constraintBottom_toBottomOf="@+id/ct_campSelected"
+        app:layout_constraintStart_toEndOf="@+id/ct_campSelected"
+        app:layout_constraintTop_toTopOf="@+id/ct_campSelected"
         />
 
     <CheckBox
-        android:id="@+id/ct_campchoosen"
+        android:id="@+id/ct_campSelected"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -30,17 +30,23 @@
         android:id="@+id/ct_check_kids_active"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:checkMark="@drawable/ic_baseline_child_care_24"
+        android:checked="false"
+        android:gravity="center_vertical"
         android:text="@string/txt_check_kids_active"
-        app:layout_constraintStart_toEndOf="@+id/ct_campchoosen"
-        app:layout_constraintTop_toBottomOf="@+id/ct_campchoosen" />
+        app:layout_constraintStart_toEndOf="@+id/ct_campSelected"
+        app:layout_constraintTop_toBottomOf="@+id/ct_campSelected" />
 
     <CheckedTextView
         android:id="@+id/ct_check_tag_only"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:checkMark="@drawable/ic_baseline_touch_app_24"
+        android:gravity="center_vertical"
         android:text="@string/txt_check_tag_only"
         app:layout_constraintStart_toStartOf="@+id/ct_check_kids_active"
-        app:layout_constraintTop_toBottomOf="@+id/ct_check_kids_active" />
+        app:layout_constraintTop_toBottomOf="@+id/ct_check_kids_active"
+        />
 
     <TextView
         android:id="@+id/ct_number_participants"
@@ -88,11 +94,11 @@
         android:text="12"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintBottom_toBottomOf="@+id/ct_StammName"
-        app:layout_constraintEnd_toStartOf="@+id/textView5"
+        app:layout_constraintEnd_toStartOf="@+id/ct_dist_text"
         app:layout_constraintTop_toTopOf="@+id/ct_StammName" />
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/ct_dist_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="km entfernt"
