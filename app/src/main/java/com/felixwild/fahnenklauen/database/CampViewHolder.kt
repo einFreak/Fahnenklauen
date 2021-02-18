@@ -14,4 +14,5 @@ class CampViewHolder(campView: View) : RecyclerView.ViewHolder(campView) {
     val buttonAdditionalRules: Button = campView.findViewById(R.id.ct_btn_addit_rules)
     val ratingBar: RatingBar = campView.findViewById(R.id.ct_ratingBar)
     val buttonStartNav: Button = campView.findViewById(R.id.ct_nav_btn)
+    val textViewDistance: TextView = campView.findViewById(R.id.ct_dist)
 }

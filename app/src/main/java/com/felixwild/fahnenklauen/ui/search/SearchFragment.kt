@@ -1,10 +1,13 @@
 package com.felixwild.fahnenklauen.ui.search
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.SearchView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -15,10 +18,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.felixwild.fahnenklauen.R
 import com.felixwild.fahnenklauen.database.Camp
 import com.felixwild.fahnenklauen.database.CampAdapter
-import com.felixwild.fahnenklauen.database.CampViewHolder
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.GeoPoint
+import com.google.firebase.firestore.Query
 
 
 class SearchFragment : Fragment() {
@@ -28,6 +33,9 @@ class SearchFragment : Fragment() {
     private var campCollection = mFirestore.collection("Camps")
     private val TAG = "SearchFragment"
     private lateinit var rvAdapter: CampAdapter
+    private var requestingLocationUpdates = false
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var currentLocation: Location = Location("")
 
 
     override fun onCreateView(
@@ -44,6 +52,10 @@ class SearchFragment : Fragment() {
             textView.text = it
         })
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+        getSharedPreferences()
+        getCurrentLocation()
+
         return root
     }
 
@@ -53,6 +65,40 @@ class SearchFragment : Fragment() {
         getDataToRV()
 
         //TODO initSearch()
+    }
+
+    private fun getSharedPreferences () {
+        val sharedPreferences = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
+        requestingLocationUpdates = sharedPreferences.getBoolean(getString(R.string.LocationPermission), false)
+        currentLocation.longitude = sharedPreferences.getFloat(getString(R.string.CurrentLocationLong), resources.getString(R.string.Westernhohe_long).toFloat()).toDouble()
+        currentLocation.latitude = sharedPreferences.getFloat(getString(R.string.CurrentLocationLat), resources.getString(R.string.Westernhohe_lat).toFloat()).toDouble()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getCurrentLocation() {
+        var tempLocation: Location = Location("")
+        tempLocation.longitude = resources.getString(R.string.Westernhohe_long).toDouble()
+        tempLocation.latitude = resources.getString(R.string.Westernhohe_lat).toDouble()
+
+        if(requestingLocationUpdates) {
+            fusedLocationClient.lastLocation
+                    .addOnSuccessListener { location ->
+                        if (location != null) {
+                            currentLocation = location
+                            Log.d(TAG, "CurrentLocation is $location")
+                            val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return@addOnSuccessListener
+                            with (sharedPref.edit()) {
+                                putFloat(getString(R.string.CurrentLocationLat), location.latitude.toFloat())
+                                putFloat(getString(R.string.CurrentLocationLong), location.longitude.toFloat())
+                                apply()
+                            }
+
+                        } else {
+                            Log.d(TAG, "Location is null - setting default")
+                            //getDataToRV()
+                        }
+                    }
+        }
     }
 
     private fun getDataToRV() {
@@ -67,26 +113,30 @@ class SearchFragment : Fragment() {
         )
 
         val allCampsQuery = campCollection.orderBy("campName")
+        val distCampsQuery = getDistQuery(currentLocation, 15F)
 
         val rvOptions = FirestoreRecyclerOptions.Builder<Camp>()
                 .setQuery(allCampsQuery, Camp::class.java)
                 .build()
 
-        rvAdapter = CampAdapter(rvOptions)
-
-        val adapter: FirestoreRecyclerAdapter<*, *> = object : FirestoreRecyclerAdapter<Camp?, CampViewHolder?>(rvOptions) {
-            override fun onBindViewHolder(holder: CampViewHolder, position: Int, model: Camp) {}
-            override fun onCreateViewHolder(group: ViewGroup, i: Int): CampViewHolder {
-                // Using a custom layout called R.layout.message for each item, we create a new instance of the viewholder
-                val view: View = LayoutInflater.from(group.context)
-                        .inflate(R.layout.content_camp, group, false)
-                return CampViewHolder(view)
-            }
-        }
-
+        Log.d(TAG, "Location for RV is $currentLocation")
+        rvAdapter = CampAdapter(rvOptions, currentLocation)
         rv?.adapter = rvAdapter
 
+    }
 
+    private fun getDistQuery(currentLocation: Location, distanceInKM: Float): Query {
+        val lat1km = 0.01
+        val long1km = 0.01
+
+        val latMax = currentLocation.latitude + (lat1km*distanceInKM)
+        val latMin = currentLocation.latitude - (lat1km*distanceInKM)
+        val longMax = currentLocation.longitude + (long1km*distanceInKM)
+        val longMin = currentLocation.longitude - (long1km*distanceInKM)
+
+        val lesserGeoPoint = GeoPoint(latMin, longMin)
+        val greaterGeoPoint = GeoPoint(latMax, longMax)
+        return campCollection.whereGreaterThan("location", lesserGeoPoint).whereLessThan("location", greaterGeoPoint)
     }
 
     override fun onStart() {

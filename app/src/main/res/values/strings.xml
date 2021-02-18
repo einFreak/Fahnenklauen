@@ -14,4 +14,9 @@
     <string name="login_failed">"Login failed"</string>
     <string name="txt_check_kids_active">Kinder bewachen </string>
     <string name="txt_check_tag_only">Abklatschen reicht</string>
+    <string name="Westernhohe_long">50.594</string>
+    <string name="Westernhohe_lat">8.113</string>
+    <string name="LocationPermission">REQUESTING_LOCATION_UPDATES_KEY</string>
+    <string name="CurrentLocationLong">CURRENT_LOCATION_LONG_KEY</string>
+    <string name="CurrentLocationLat">CURRENT_LOCATION_LAT_KEY</string>
 </resources>
