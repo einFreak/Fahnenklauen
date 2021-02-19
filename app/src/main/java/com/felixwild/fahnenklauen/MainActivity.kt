@@ -3,27 +3,23 @@ package com.felixwild.fahnenklauen
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.gms.common.api.ResolvableApiException
+import com.felixwild.fahnenklauen.database.LocationViewModel
 import com.google.android.gms.location.*
-import com.google.android.gms.tasks.Task
-import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,27 +28,37 @@ class MainActivity : AppCompatActivity() {
     private lateinit var locationCallback: LocationCallback
     private var requestingLocationUpdates: Boolean = false
     private lateinit var currentLocation: Location
+    private val locationViewModel: LocationViewModel by viewModels()
+    private val locationRequest = LocationRequest.create().apply {
+        interval = 5000
+        fastestInterval = 1000
+        priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         updateValuesFromBundle(savedInstanceState)
 
+        init()
+    }
+
+    private fun init() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
                 locationResult ?: return
                 for (location in locationResult.locations){
-                    // Update UI with location data
-                    // ...
+                    getLocation()
                 }
             }
         }
 
         setupPermissions()
-        init()
-        getCurrentLocation()
+        startLocationUpdates()
+        setupBottomNav()
+        getLocation()
     }
 
     override fun onResume() {
@@ -83,10 +89,6 @@ class MainActivity : AppCompatActivity() {
         //updateUI()
     }
 
-    private fun init() {
-        setupBottomNav()
-    }
-
     private fun setupBottomNav() {
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment)
@@ -94,6 +96,7 @@ class MainActivity : AppCompatActivity() {
         // menu should be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration(setOf(
                 R.id.navigation_home, R.id.navigation_search, R.id.navigation_map))
+
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
     }
@@ -101,12 +104,6 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     private fun startLocationUpdates() {
         //Creating task with location request
-        val locationRequest = LocationRequest.create().apply {
-            interval = 60*60*1000
-            fastestInterval = 60*1000
-            priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-        }
-
         fusedLocationClient.requestLocationUpdates(locationRequest,
                 locationCallback,
                 Looper.getMainLooper())
@@ -166,8 +163,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("MissingPermission")
-    private fun getCurrentLocation() {
-        var tempLocation: Location = Location("")
+    private fun getLocation() {
+        val tempLocation: Location = Location("")
         tempLocation.longitude = resources.getString(R.string.Westernhohe_long).toDouble()
         tempLocation.latitude = resources.getString(R.string.Westernhohe_lat).toDouble()
 
@@ -176,7 +173,8 @@ class MainActivity : AppCompatActivity() {
                     .addOnSuccessListener { location ->
                         if (location != null) {
                             currentLocation = location
-                            Log.d(TAG, "CurrentLocation is $location")
+                            locationViewModel.changeLocation(location)
+                            //Log.d(TAG, "CurrentLocation is $location")
                             //saving currentLocation to SharedPreferences
                             val sharedPref = this.getPreferences(Context.MODE_PRIVATE) ?: return@addOnSuccessListener
                             with (sharedPref.edit()) {
@@ -187,6 +185,7 @@ class MainActivity : AppCompatActivity() {
 
                         } else {
                             Log.d(TAG, "Location is null - setting default")
+                            locationViewModel.changeLocation(tempLocation)
                             //getDataToRV()
                         }
                     }
