@@ -1,6 +1,5 @@
 package com.felixwild.fahnenklauen.ui.search
 
-import android.content.Context
 import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -18,9 +17,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.felixwild.fahnenklauen.R
 import com.felixwild.fahnenklauen.database.Camp
 import com.felixwild.fahnenklauen.database.CampAdapter
-import com.felixwild.fahnenklauen.database.CampViewModel
-import com.felixwild.fahnenklauen.database.LocationViewModel
-import com.google.firebase.firestore.GeoPoint
+import com.felixwild.fahnenklauen.viewModels.CampViewModel
+import com.felixwild.fahnenklauen.viewModels.LocationViewModel
 
 
 class SearchFragment : Fragment() {
@@ -77,29 +75,13 @@ class SearchFragment : Fragment() {
         campViewModel.allCamps.observe(viewLifecycleOwner, Observer { camps ->
             rvAdapter.setCamps(camps, currentLocation)
             allCamps = camps
-            rvAdapter.sortCamps()
         })
         locationViewModel.currentLocation.observe(viewLifecycleOwner, Observer { location ->
-            rvAdapter.setCamps(allCamps, currentLocation)
-            rvAdapter.sortCamps()
+            allCamps = campViewModel.sortCampData(allCamps, location)
+            rvAdapter.setCamps(allCamps, location)
         })
 
     }
-
-    /*
-    private fun getDistQuery(currentLocation: Location, distanceInKM: Float): Query {
-        val lat1km = 0.01
-        val long1km = 0.01
-
-        val latMax = currentLocation.latitude + (lat1km*distanceInKM)
-        val latMin = currentLocation.latitude - (lat1km*distanceInKM)
-        val longMax = currentLocation.longitude + (long1km*distanceInKM)
-        val longMin = currentLocation.longitude - (long1km*distanceInKM)
-
-        val lesserGeoPoint = GeoPoint(latMin, longMin)
-        val greaterGeoPoint = GeoPoint(latMax, longMax)
-        return campCollection.whereGreaterThan("location", lesserGeoPoint).whereLessThan("location", greaterGeoPoint)
-    }*/
 
     private fun initSearch() {
         val search = view?.findViewById<SearchView>(R.id.search_camp)

@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.felixwild.fahnenklauen.database.LocationViewModel
+import com.felixwild.fahnenklauen.viewModels.LocationViewModel
 import com.felixwild.fahnenklauen.R
 
 class HomeFragment : Fragment() {

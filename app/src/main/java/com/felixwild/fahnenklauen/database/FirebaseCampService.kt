@@ -1,5 +1,6 @@
 package com.felixwild.fahnenklauen.database
 
+import android.location.Location
 import android.util.Log
 import androidx.constraintlayout.helper.widget.Flow
 import com.felixwild.fahnenklauen.database.Camp.Companion.toCamp
@@ -13,6 +14,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.util.*
 
 object FirebaseCampService {
     private const val TAG = "FirebaseProfileService"
@@ -46,29 +48,18 @@ object FirebaseCampService {
     }
 
     /*
-    @ExperimentalCoroutinesApi
-    fun getAllCampData2(): kotlinx.coroutines.flow.Flow<List<Camp>> {
-        val db = FirebaseFirestore.getInstance()
-        return callbackFlow {
-            val listenerRegistration = db.collection(campCollection)
-                .addSnapshotListener { querySnapshot: QuerySnapshot?,
-                                       firebaseFirestoreException: FirebaseFirestoreException? ->
-                    if (firebaseFirestoreException != null) {
-                        cancel(
-                            message = "Error fetching posts",
-                            cause = firebaseFirestoreException
-                        )
-                        return@addSnapshotListener
-                    }
-                    val map = querySnapshot.documents
-                        .mapNotNull { it.toCamp() }
-                    offer(map)
-                }
-            awaitClose {
-                Log.d(TAG, "Cancelling posts listener")
-                listenerRegistration.remove()
-            }
-        }
+    private fun getDistQuery(currentLocation: Location, distanceInKM: Float): Query {
+        val lat1km = 0.01
+        val long1km = 0.01
+
+        val latMax = currentLocation.latitude + (lat1km*distanceInKM)
+        val latMin = currentLocation.latitude - (lat1km*distanceInKM)
+        val longMax = currentLocation.longitude + (long1km*distanceInKM)
+        val longMin = currentLocation.longitude - (long1km*distanceInKM)
+
+        val lesserGeoPoint = GeoPoint(latMin, longMin)
+        val greaterGeoPoint = GeoPoint(latMax, longMax)
+        return campCollection.whereGreaterThan("location", lesserGeoPoint).whereLessThan("location", greaterGeoPoint)
     }*/
 
 }

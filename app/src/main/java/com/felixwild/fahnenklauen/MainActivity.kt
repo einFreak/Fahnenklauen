@@ -18,7 +18,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.felixwild.fahnenklauen.database.LocationViewModel
+import com.felixwild.fahnenklauen.viewModels.LocationViewModel
 import com.google.android.gms.location.*
 
 class MainActivity : AppCompatActivity() {

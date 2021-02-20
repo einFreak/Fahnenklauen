@@ -17,15 +17,13 @@ class CampAdapter() : RecyclerView.Adapter<CampViewHolder>(), Filterable  {
     private var allCamps: List<Camp> = ArrayList()
     private var filteredCamps: List<Camp> = ArrayList()
     private var currentLocation: Location = Location("")
-    private var filteredCampsSet: Boolean = false
+    private var filterActive: Boolean = false
 
     fun setCamps(camps: List<Camp>, currentLocation: Location) {
         this.allCamps = camps
         this.currentLocation = currentLocation
-        if (!filteredCampsSet && allCamps.isNotEmpty()) {
+        if (!filterActive)
             filteredCamps = allCamps
-            filteredCampsSet = true
-        }
         notifyDataSetChanged()
     }
 
@@ -56,16 +54,6 @@ class CampAdapter() : RecyclerView.Adapter<CampViewHolder>(), Filterable  {
         holder.ratingBar.rating = currentCamp.currentRating.toFloat()
         holder.textViewNumberParticipants.text = currentCamp.numberParticipants.toString()
 
-
-        var distanceInM: Float
-
-        val currentCampLocation = Location("")
-        currentCampLocation.latitude = currentCamp.location.latitude
-        currentCampLocation.longitude = currentCamp.location.longitude
-        distanceInM= currentLocation.distanceTo(currentCampLocation)
-        currentCamp.distanceInM = distanceInM
-
-
         val distanceInKM = currentCamp.distanceInM/1000
         val distanceString = String.format("%.1f", distanceInKM)
         holder.textViewDistance.text = distanceString
@@ -83,7 +71,9 @@ class CampAdapter() : RecyclerView.Adapter<CampViewHolder>(), Filterable  {
                 val charSearch = constraint.toString()
                 if (charSearch.isEmpty()) {
                     filteredCamps = allCamps
+                    filterActive = false
                 } else {
+                    filterActive = true
                     val results: MutableList<Camp> = ArrayList()
 
                     for (row in allCamps) {
