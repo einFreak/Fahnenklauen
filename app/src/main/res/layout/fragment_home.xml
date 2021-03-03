@@ -1,23 +1,177 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.home.HomeFragment"
-    android:id="@+id/fragment_Home">
+    tools:context=".ui.home.HomeFragment">
 
-    <TextView
-        android:id="@+id/text_home"
-        android:layout_width="match_parent"
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/symbol_container"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imageView">
+
+        <TextView
+            android:id="@+id/symbol_container_titel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Symbol Erklärung"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/ct_img_flag"
+            android:layout_width="@dimen/camp_state_icon_dim"
+            android:layout_height="@dimen/camp_state_icon_dim"
+            android:contentDescription="@string/ct_flag_description"
+            app:layout_constraintEnd_toStartOf="@id/text_rules"
+            app:layout_constraintStart_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/symbol_container_titel"
+            app:srcCompat="@drawable/ic_twotone_emoji_flags_24"
+            app:tint="@color/green_state" />
+
+        <TextView
+            android:id="@+id/text_flag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="rot wenn Flage geklaut"
+            app:layout_constraintBottom_toBottomOf="@id/ct_img_flag"
+            app:layout_constraintStart_toEndOf="@id/ct_img_flag"
+            app:layout_constraintTop_toTopOf="@id/ct_img_flag" />
+
+        <ImageView
+            android:id="@+id/ct_img_tag_only"
+            android:layout_width="@dimen/camp_state_icon_dim"
+            android:layout_height="@dimen/camp_state_icon_dim"
+            android:contentDescription="@string/ct_tag_description"
+            app:layout_constraintStart_toStartOf="@id/ct_img_flag"
+            app:layout_constraintTop_toBottomOf="@id/ct_img_flag"
+            app:srcCompat="@drawable/ic_twotone_touch_app_24"
+            app:tint="@color/green_state" />
+
+        <TextView
+            android:id="@+id/text_tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="rot wenn abklatschen nicht als Fangen gilt"
+            app:layout_constraintBottom_toBottomOf="@id/ct_img_tag_only"
+            app:layout_constraintStart_toEndOf="@id/ct_img_flag"
+            app:layout_constraintTop_toTopOf="@id/ct_img_tag_only" />
+
+        <ImageView
+            android:id="@+id/ct_img_kids"
+            android:layout_width="@dimen/camp_state_icon_dim"
+            android:layout_height="@dimen/camp_state_icon_dim"
+            android:contentDescription="@string/ct_kids_description"
+            app:layout_constraintStart_toStartOf="@id/ct_img_tag_only"
+            app:layout_constraintTop_toBottomOf="@id/ct_img_tag_only"
+            app:srcCompat="@drawable/ic_twotone_child_care_24"
+            app:tint="@color/green_state" />
+
+        <TextView
+            android:id="@+id/text_kids"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="rot wenn Kinder das Lager bewachen"
+            app:layout_constraintBottom_toBottomOf="@id/ct_img_kids"
+            app:layout_constraintStart_toEndOf="@id/ct_img_flag"
+            app:layout_constraintTop_toTopOf="@id/ct_img_kids" />
+
+        <ImageView
+            android:id="@+id/ct_img_rules"
+            android:layout_width="@dimen/camp_state_icon_dim"
+            android:layout_height="@dimen/camp_state_icon_dim"
+            android:contentDescription="@string/ct_rules_description"
+            app:layout_constraintStart_toStartOf="@id/ct_img_kids"
+            app:layout_constraintTop_toBottomOf="@id/ct_img_kids"
+            app:srcCompat="@drawable/ic_twotone_assignment_24"
+            app:tint="@color/green_state" />
+
+        <TextView
+            android:id="@+id/text_rules"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="rot wenn keine zusätzlichen Regel aktiv sind"
+            app:layout_constraintBottom_toBottomOf="@id/ct_img_rules"
+            app:layout_constraintStart_toEndOf="@id/ct_img_flag"
+            app:layout_constraintTop_toTopOf="@id/ct_img_rules" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:src="@mipmap/ic_launcher_round"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/location_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/symbol_container">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Latitude:"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/text_lat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Longitude:"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/text_long"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Login"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@id/btn_manageCamps"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/location_container"/>
+
+    <Button
+        android:id="@+id/btn_manageCamps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/ic_home_black_24dp"
+        android:drawableTint="@color/white"
+        android:text="Eigene Camps verwalten"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_login" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

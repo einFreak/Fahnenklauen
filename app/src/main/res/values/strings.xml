@@ -12,11 +12,35 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
+
     <string name="txt_check_kids_active">Kinder bewachen </string>
     <string name="txt_check_tag_only">Abklatschen reicht</string>
-    <string name="Westernhohe_long">50.594</string>
-    <string name="Westernhohe_lat">8.113</string>
+
+    <string name="Westernhohe_long">8.113</string>
+    <string name="Westernhohe_lat">50.594</string>
     <string name="LocationPermission">REQUESTING_LOCATION_UPDATES_KEY</string>
     <string name="CurrentLocationLong">CURRENT_LOCATION_LONG_KEY</string>
     <string name="CurrentLocationLat">CURRENT_LOCATION_LAT_KEY</string>
+
+    <!-- Add Camp Fragment -->
+    <string name="title_addCamp">Camp hinzufügen</string>
+    <string name="hint_InputCampName">Lagernamen *</string>
+    <string name="hint_InputNumberParticipants">Anzahl Teilnehmer *</string>
+    <string name="hint_InputAdditionalRules">Sonderregeln</string>
+    <string name="btn_addCamp">Lager hinzufügen</string>
+    <string name="btn_show_selectionMap">Ort auf Karte auswählen</string>
+    <string name="required_field">Pflichtfeld</string>
+    <string name="btn_navigate">Navigate</string>
+    <string name="ct_kids_description">Zeigt an ob Kinder aktiv sind</string>
+    <string name="ct_tag_description">Zeigt an ob Fangen ausreicht</string>
+    <string name="ct_flag_description">Zeigt ob die Fahne noch da ist</string>
+    <string name="ct_rules_description">Zeigt an ob es Zusatzregeln gibt</string>
+
+    <string name="content_description_more">Weitere Menüpunkte</string>
+    <string name="more">Mehr</string>
+    <string name="logout">Logout</string>
+    <string name="login">Login</string>
+    <string name="user_logged_out">" hat sich ausgeloggt</string>
+    <string name="hello_user">Hallo </string>
+    <string name="canceled_login_message">Login abgebrochen, kein Zugriff auf Lager Daten</string>
 </resources>

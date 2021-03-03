@@ -1,64 +1,120 @@
 package com.felixwild.fahnenklauen
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.pm.PackageManager
-import android.location.Location
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
+import android.view.Menu
+import android.view.MenuItem
 import androidx.activity.viewModels
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.felixwild.fahnenklauen.viewModels.LocationViewModel
+import com.felixwild.fahnenklauen.viewModels.LoginViewModel
+import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.IdpResponse
 import com.google.android.gms.location.*
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 class MainActivity : AppCompatActivity() {
 
-    private val TAG = "MainActivity"
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
     private var requestingLocationUpdates: Boolean = false
-    private lateinit var currentLocation: Location
     private val locationViewModel: LocationViewModel by viewModels()
+    private val loginViewModel: LoginViewModel by viewModels()
     private val locationRequest = LocationRequest.create().apply {
         interval = 5000
         fastestInterval = 1000
         priority = LocationRequest.PRIORITY_HIGH_ACCURACY
     }
 
+    private var isLoggedIn = false
+
+    companion object {
+        const val TAG = "MainFragment"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         updateValuesFromBundle(savedInstanceState)
+        setSupportActionBar(findViewById(R.id.toolbar))
 
         init()
     }
 
     private fun init() {
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
                 locationResult ?: return
                 for (location in locationResult.locations){
-                    getLocation()
+                    locationViewModel.changeLocation(location)
                 }
             }
         }
 
-        setupPermissions()
-        startLocationUpdates()
+        locationViewModel.setupLocationPermissions(this)
+        locationViewModel.requestingLocationUpdates.observe(this, {
+            requestingLocationUpdates = it
+            if (it)
+                startLocationUpdates()
+            else
+                stopLocationUpdates()
+        })
+
         setupBottomNav()
-        getLocation()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.app_bar_menu, menu)
+
+        val loginBtn = menu?.findItem(R.id.appbar_logout)
+
+        loginViewModel.authenticationState.observe(this, { authenticationState ->
+            when (authenticationState) {
+                LoginViewModel.AuthenticationState.AUTHENTICATED -> {
+                    loginBtn?.title = getString(R.string.logout)
+                    isLoggedIn = true
+                }
+                else -> {
+                    loginBtn?.title = getString(R.string.login)
+                    isLoggedIn = false
+                }
+            }
+
+        })
+
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.appbar_logout -> {
+            if(isLoggedIn) {
+                val user = FirebaseAuth.getInstance().currentUser
+                AuthUI.getInstance()
+                        .signOut(this)
+                        .addOnCompleteListener {
+                            Snackbar.make(findViewById(android.R.id.content), user?.displayName.toString() + getString(R.string.user_logged_out), Snackbar.LENGTH_SHORT).show()
+                        }
+            }
+            else {
+                loginViewModel.createSignInIntent(this)
+            }
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 
     override fun onResume() {
@@ -69,24 +125,6 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         stopLocationUpdates()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putBoolean("REQUESTING_LOCATION_UPDATES_KEY", requestingLocationUpdates)
-        super.onSaveInstanceState(outState)
-    }
-
-    private fun updateValuesFromBundle(savedInstanceState: Bundle?) {
-        savedInstanceState ?: return
-
-        // Update the value of requestingLocationUpdates from the Bundle.
-        if (savedInstanceState.keySet().contains("REQUESTING_LOCATION_UPDATES_KEY")) {
-            requestingLocationUpdates = savedInstanceState.getBoolean(
-                    "REQUESTING_LOCATION_UPDATES_KEY")
-        }
-
-        // Update UI to match restored state
-        //updateUI()
     }
 
     private fun setupBottomNav() {
@@ -113,83 +151,61 @@ class MainActivity : AppCompatActivity() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
-    private fun setupPermissions() {
-        val requestPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-            isGranted: Boolean ->
-            Log.d(TAG, "isGranted: $isGranted")
-            if(isGranted) {
-                Toast.makeText(this, "Location Permission given", Toast.LENGTH_SHORT).show()
-                requestingLocationUpdates = true
-            } else {
-                Toast.makeText(this, "No Permission", Toast.LENGTH_SHORT).show()
-                requestingLocationUpdates = false
-            }
-        }
-
-        Log.d(TAG, "Check for Perm")
-        when (PackageManager.PERMISSION_GRANTED) {
-            ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-            ) -> {
-                Log.d(TAG, "Permission granted")
-                requestingLocationUpdates = true
-                // You can use the API that requires the permission.
-            }
-            //shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
-            // In an educational UI, explain to the user why your app requires this
-            // permission for a specific feature to behave as expected. In this UI,
-            // include a "cancel" or "no thanks" button that allows the user to
-            // continue using your app without granting the permission.
-            //showInContextUI(...)
-            //Toast.makeText(this.context, "No Permission - setting to default2", Toast.LENGTH_SHORT).show()
-            //}
-            else -> {
-                // You can directly ask for the permission.
-                // The registered ActivityResultCallback gets the result of this request.
-                requestPermission.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-            }
-
-        }
-
-        //saving PermissionState to SharedPreferences
-        Log.d(TAG, "reqLoq value: $requestingLocationUpdates")
-        val sharedPref = this.getPreferences(Context.MODE_PRIVATE) ?: return
-        with (sharedPref.edit()) {
-            putBoolean(getString(R.string.LocationPermission), requestingLocationUpdates)
-            apply()
-        }
-
+    //allows back button through NavGraph
+    override fun onSupportNavigateUp(): Boolean {
+        val navController = findNavController(R.id.nav_host_fragment)
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
-    @SuppressLint("MissingPermission")
-    private fun getLocation() {
-        val tempLocation: Location = Location("")
-        tempLocation.longitude = resources.getString(R.string.Westernhohe_long).toDouble()
-        tempLocation.latitude = resources.getString(R.string.Westernhohe_lat).toDouble()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
-        if(requestingLocationUpdates) {
-            fusedLocationClient.lastLocation
-                    .addOnSuccessListener { location ->
-                        if (location != null) {
-                            currentLocation = location
-                            locationViewModel.changeLocation(location)
-                            //Log.d(TAG, "CurrentLocation is $location")
-                            //saving currentLocation to SharedPreferences
-                            val sharedPref = this.getPreferences(Context.MODE_PRIVATE) ?: return@addOnSuccessListener
-                            with (sharedPref.edit()) {
-                                putFloat(getString(R.string.CurrentLocationLat), location.latitude.toFloat())
-                                putFloat(getString(R.string.CurrentLocationLong), location.longitude.toFloat())
-                                apply()
-                            }
+        if (requestCode == LoginViewModel.RC_SIGN_IN) {
+            val response = IdpResponse.fromResultIntent(data)
 
-                        } else {
-                            Log.d(TAG, "Location is null - setting default")
-                            locationViewModel.changeLocation(tempLocation)
-                            //getDataToRV()
-                        }
-                    }
+            if (resultCode == Activity.RESULT_OK) {
+                val user = FirebaseAuth.getInstance().currentUser
+                Log.i(TAG, "Successfully signed in user ${FirebaseAuth.getInstance().currentUser?.displayName}!")
+                if (user != null) {
+                    Snackbar.make(findViewById(android.R.id.content), getString(R.string.hello_user) + user.displayName, Snackbar.LENGTH_SHORT).show()
+                }
+
+            } else {
+                if (response == null) {
+                    Log.i(TAG, "User canceled Login")
+                    FirebaseCrashlytics.getInstance().log("User canceled Login")
+                    Snackbar.make(findViewById(android.R.id.content), getString(R.string.canceled_login_message), Snackbar.LENGTH_LONG).show()
+
+                }
+                // Sign in failed. If response is null the user canceled the
+                // sign-in flow using the back button. Otherwise check
+                // response.getError().getErrorCode() and handle the error.
+                // ...
+
+                val e = response?.error
+                FirebaseCrashlytics.getInstance().log("Error getting all camp data")
+                if (e != null) {
+                    FirebaseCrashlytics.getInstance().recordException(e)
+                    Log.i(TAG, "Sign in unsuccessful ${e.errorCode}")
+                }
+            }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("REQUESTING_LOCATION_UPDATES_KEY", requestingLocationUpdates)
+        super.onSaveInstanceState(outState)
+    }
+
+    private fun updateValuesFromBundle(savedInstanceState: Bundle?) {
+        savedInstanceState ?: return
+
+        // Update the value of requestingLocationUpdates from the Bundle.
+        if (savedInstanceState.keySet().contains("REQUESTING_LOCATION_UPDATES_KEY")) {
+            requestingLocationUpdates = savedInstanceState.getBoolean(
+                    "REQUESTING_LOCATION_UPDATES_KEY")
+        }
+
     }
 
 }

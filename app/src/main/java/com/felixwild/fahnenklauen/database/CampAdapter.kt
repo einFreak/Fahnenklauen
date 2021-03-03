@@ -1,18 +1,23 @@
 package com.felixwild.fahnenklauen.database
 
+import android.app.AlertDialog
+import android.content.Context
+import android.content.Intent
+import android.content.res.ColorStateList
 import android.location.Location
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Filter
-import android.widget.Filterable
+import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.felixwild.fahnenklauen.R
-import com.google.firebase.firestore.GeoPoint
 import java.util.*
 import kotlin.collections.ArrayList
 
-class CampAdapter() : RecyclerView.Adapter<CampViewHolder>(), Filterable  {
+
+class CampAdapter() : RecyclerView.Adapter<CampAdapter.RVCampViewHolder>(), Filterable  {
 
     private var allCamps: List<Camp> = ArrayList()
     private var filteredCamps: List<Camp> = ArrayList()
@@ -22,7 +27,8 @@ class CampAdapter() : RecyclerView.Adapter<CampViewHolder>(), Filterable  {
     fun setCamps(camps: List<Camp>, currentLocation: Location) {
         this.allCamps = camps
         this.currentLocation = currentLocation
-        if (!filterActive)
+
+        //if (!filterActive)
             filteredCamps = allCamps
         notifyDataSetChanged()
     }
@@ -33,31 +39,75 @@ class CampAdapter() : RecyclerView.Adapter<CampViewHolder>(), Filterable  {
         return filteredCamps[position]
     }
 
-    override fun onCreateViewHolder(group: ViewGroup, i: Int): CampViewHolder {
+    override fun onCreateViewHolder(group: ViewGroup, i: Int): RVCampViewHolder {
         val campView: View = LayoutInflater.from(group.context)
             .inflate(R.layout.content_camp, group, false)
-        return CampViewHolder(campView)
+        return RVCampViewHolder(campView)
     }
 
-    override fun onBindViewHolder(holder: CampViewHolder, position: Int) {
+    override fun onBindViewHolder(holderRV: RVCampViewHolder, position: Int) {
         val currentCamp = filteredCamps[position]
 
-        holder.textViewStammName.text = currentCamp.campName
+        holderRV.tVCampName.text = currentCamp.campName
         if(currentCamp.kidsActive)
-            holder.checkTVKidsActive.visibility = View.VISIBLE
+            holderRV.imgKidsActive.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(holderRV.itemView.context, R.color.red_state))
         else
-            holder.checkTVKidsActive.visibility = View.INVISIBLE
+            holderRV.imgKidsActive.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(holderRV.itemView.context, R.color.green_state))
+
         if(currentCamp.tagOnly)
-            holder.checkTVTagOnly.visibility = View.VISIBLE
+            holderRV.imgTagOnly.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(holderRV.itemView.context, R.color.green_state))
         else
-            holder.checkTVTagOnly.visibility = View.INVISIBLE
-        holder.ratingBar.rating = currentCamp.currentRating.toFloat()
-        holder.textViewNumberParticipants.text = currentCamp.numberParticipants.toString()
+            holderRV.imgTagOnly.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(holderRV.itemView.context, R.color.red_state))
+
+        if(currentCamp.flag)
+            holderRV.imgFlag.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(holderRV.itemView.context, R.color.green_state))
+        else
+            holderRV.imgFlag.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(holderRV.itemView.context, R.color.red_state))
+
+        if(currentCamp.hasAdditionalRules)
+            holderRV.imgRules.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(holderRV.itemView.context, R.color.green_state))
+        else
+            holderRV.imgRules.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(holderRV.itemView.context, R.color.red_state))
+
+        holderRV.ratingBar.rating = currentCamp.currentRating.toFloat()
+        holderRV.tVNumberParticipants.text = currentCamp.numberParticipants.toString()
+
+
+        val uri = "http://maps.google.com/maps?daddr=" + currentCamp.location.latitude.toString() + "," + currentCamp.location.longitude.toString() + "(" + currentCamp.campName + ")"
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
+
+        holderRV.btnStartNav.setOnClickListener {
+            startNavigation(context = holderRV.itemView.context, intent = intent, destinationName = currentCamp.campName)
+        }
+
+        holderRV.btnMore.setOnClickListener {
+
+        }
 
         val distanceInKM = currentCamp.distanceInM/1000
         val distanceString = String.format("%.1f", distanceInKM)
-        holder.textViewDistance.text = distanceString
+        holderRV.tVDistance.text = distanceString
 
+    }
+
+    private fun startNavigation (context: Context, intent: Intent, destinationName: String) {
+        val builder: AlertDialog.Builder = context.let {
+            AlertDialog.Builder(it)
+        }
+
+        builder.setTitle("Navigation nach $destinationName")
+        builder.apply {
+            setPositiveButton("Starten"
+            ) { dialog, it ->
+                context.startActivity(intent)
+            }
+            setNegativeButton("Abbruch"
+            ) { dialog, it ->
+                Toast.makeText(context, "Navigation abgebrochen", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        builder.create()?.show()
     }
 
     fun sortCamps() {
@@ -97,4 +147,18 @@ class CampAdapter() : RecyclerView.Adapter<CampViewHolder>(), Filterable  {
         }
     }
 
+    class RVCampViewHolder(campView: View) : RecyclerView.ViewHolder(campView) {
+        val tVCampName: TextView = campView.findViewById(R.id.ct_campName)
+        val tVDistance: TextView = campView.findViewById(R.id.ct_dist)
+        val imgKidsActive: ImageView = campView.findViewById(R.id.ct_img_kids)
+        val imgFlag: ImageView = campView.findViewById(R.id.ct_img_flag)
+        val imgTagOnly: ImageView = campView.findViewById(R.id.ct_img_tag_only)
+        val imgRules: ImageView = campView.findViewById(R.id.ct_img_rules)
+        val tVNumberParticipants: TextView = campView.findViewById(R.id.ct_number_participants)
+        val btnMore: Button = campView.findViewById(R.id.ct_btn_more)
+        val btnStartNav: Button = campView.findViewById(R.id.ct_nav_btn)
+        val ratingBar: RatingBar = campView.findViewById(R.id.ct_ratingBar)
+    }
+
 }
+

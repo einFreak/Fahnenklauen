@@ -4,57 +4,71 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="10dp">
+    android:clickable="true">
 
     <TextView
-        android:id="@+id/ct_StammName"
-        android:layout_width="wrap_content"
+        android:id="@+id/ct_campName"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="St. Konrad"
-        tools:ignore="HardcodedText"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        app:layout_constraintBottom_toBottomOf="@+id/ct_campSelected"
-        app:layout_constraintStart_toEndOf="@+id/ct_campSelected"
-        app:layout_constraintTop_toTopOf="@+id/ct_campSelected"
-        />
-
-    <CheckBox
-        android:id="@+id/ct_campSelected"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:text="St. Konrad"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        app:layout_constraintEnd_toStartOf="@id/ct_dist"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="HardcodedText" />
 
-    <CheckedTextView
-        android:id="@+id/ct_check_kids_active"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:checkMark="@drawable/ic_baseline_child_care_24"
-        android:checked="false"
-        android:gravity="center_vertical"
-        android:text="@string/txt_check_kids_active"
-        app:layout_constraintStart_toEndOf="@+id/ct_campSelected"
-        app:layout_constraintTop_toBottomOf="@+id/ct_campSelected" />
+    <ImageView
+        android:id="@+id/ct_img_flag"
+        android:layout_width="@dimen/camp_state_icon_dim"
+        android:layout_height="@dimen/camp_state_icon_dim"
+        android:contentDescription="@string/ct_flag_description"
+        app:layout_constraintStart_toStartOf="@id/ct_campName"
+        app:layout_constraintTop_toBottomOf="@id/ct_campName"
+        app:srcCompat="@drawable/ic_twotone_emoji_flags_24"
+        app:tint="@color/green_state" />
 
-    <CheckedTextView
-        android:id="@+id/ct_check_tag_only"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:checkMark="@drawable/ic_baseline_touch_app_24"
-        android:gravity="center_vertical"
-        android:text="@string/txt_check_tag_only"
-        app:layout_constraintStart_toStartOf="@+id/ct_check_kids_active"
-        app:layout_constraintTop_toBottomOf="@+id/ct_check_kids_active"
-        />
+    <ImageView
+        android:id="@+id/ct_img_tag_only"
+        android:layout_width="@dimen/camp_state_icon_dim"
+        android:layout_height="@dimen/camp_state_icon_dim"
+        android:layout_marginStart="24dp"
+        android:contentDescription="@string/ct_tag_description"
+        app:layout_constraintStart_toEndOf="@id/ct_img_flag"
+        app:layout_constraintTop_toTopOf="@id/ct_img_flag"
+        app:srcCompat="@drawable/ic_twotone_touch_app_24"
+        app:tint="@color/red_state" />
+
+    <ImageView
+        android:id="@+id/ct_img_kids"
+        android:layout_width="@dimen/camp_state_icon_dim"
+        android:layout_height="@dimen/camp_state_icon_dim"
+        android:contentDescription="@string/ct_kids_description"
+        app:layout_constraintStart_toEndOf="@id/ct_img_tag_only"
+        app:layout_constraintTop_toTopOf="@id/ct_img_flag"
+        app:srcCompat="@drawable/ic_twotone_child_care_24"
+        app:tint="@color/green_state" />
+
+    <ImageView
+        android:id="@+id/ct_img_rules"
+        android:layout_width="@dimen/camp_state_icon_dim"
+        android:layout_height="@dimen/camp_state_icon_dim"
+        android:contentDescription="@string/ct_rules_description"
+        app:layout_constraintStart_toEndOf="@id/ct_img_kids"
+        app:layout_constraintTop_toTopOf="@id/ct_img_flag"
+        app:srcCompat="@drawable/ic_twotone_assignment_24"
+        app:tint="@color/green_state" />
 
     <TextView
         android:id="@+id/ct_number_participants"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="60"
-        app:layout_constraintStart_toStartOf="@+id/ct_check_tag_only"
-        app:layout_constraintTop_toBottomOf="@+id/ct_check_tag_only" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintStart_toStartOf="@+id/ct_img_flag"
+        app:layout_constraintEnd_toEndOf="@id/ct_img_flag"
+        app:layout_constraintTop_toBottomOf="@+id/ct_img_flag" />
 
     <TextView
         android:id="@+id/ct_text_number_participants"
@@ -62,30 +76,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="Teilnehmer"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintStart_toEndOf="@+id/ct_number_participants"
-        app:layout_constraintTop_toBottomOf="@+id/ct_check_tag_only" />
-
-    <Button
-        android:id="@+id/ct_btn_addit_rules"
-        style="@style/Widget.AppCompat.Button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:enabled="false"
-        android:text="Zusätzliche\nRegeln"
-        app:layout_constraintBottom_toBottomOf="@+id/ct_text_number_participants"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/ct_check_tag_only"
-        app:layout_constraintTop_toBottomOf="@+id/ct_StammName"
-        tools:visibility="visible" />
-
-    <RatingBar
-        android:id="@+id/ct_ratingBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ct_text_number_participants" />
+        app:layout_constraintTop_toTopOf="@+id/ct_number_participants" />
 
     <TextView
         android:id="@+id/ct_dist"
@@ -93,9 +86,9 @@
         android:layout_height="wrap_content"
         android:text="12"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        app:layout_constraintBottom_toBottomOf="@+id/ct_StammName"
+        app:layout_constraintBottom_toBottomOf="@+id/ct_campName"
         app:layout_constraintEnd_toStartOf="@+id/ct_dist_text"
-        app:layout_constraintTop_toTopOf="@+id/ct_StammName" />
+        app:layout_constraintTop_toTopOf="@+id/ct_campName" />
 
     <TextView
         android:id="@+id/ct_dist_text"
@@ -105,14 +98,39 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintBottom_toBottomOf="@+id/ct_dist"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/ct_StammName"
+        app:layout_constraintStart_toStartOf="@+id/ct_nav_btn"
         app:layout_constraintTop_toTopOf="@+id/ct_dist" />
+
+    <Button
+        android:id="@+id/ct_btn_more"
+        style="@style/Widget.AppCompat.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:text="mehr"
+        app:layout_constraintBottom_toBottomOf="@+id/ct_text_number_participants"
+        app:layout_constraintEnd_toEndOf="@id/ct_dist_text"
+        app:layout_constraintStart_toStartOf="@+id/ct_dist"
+        app:layout_constraintTop_toBottomOf="@+id/ct_campName"
+        tools:visibility="visible" />
+
+    <RatingBar
+        android:id="@+id/ct_ratingBar"
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ct_number_participants" />
 
     <Button
         android:id="@+id/ct_nav_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:text="@string/btn_navigate"
+        app:icon="@drawable/ic_baseline_navigation_24"
         app:layout_constraintBottom_toBottomOf="@+id/ct_ratingBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/ct_ratingBar"

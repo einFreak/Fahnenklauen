@@ -9,26 +9,28 @@
         android:id="@+id/navigation_home"
         android:name="com.felixwild.fahnenklauen.ui.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" >
-        <argument
-            android:name="currentLocation"
-            app:argType="android.location.Location" />
-    </fragment>
+        tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_search"
         android:name="com.felixwild.fahnenklauen.ui.search.SearchFragment"
         android:label="@string/title_search"
-        tools:layout="@layout/fragment_search" />
-        <argument
-            android:name="currentLocation"
-            app:argType="android.location.Location" />
+        tools:layout="@layout/fragment_search" >
+        <action
+            android:id="@+id/action_navigation_search_to_navigation_addCamp"
+            app:destination="@id/navigation_addCamp"
+            app:enterAnim="@android:anim/slide_in_left" />
+    </fragment>
+
     <fragment
         android:id="@+id/navigation_map"
         android:name="com.felixwild.fahnenklauen.ui.map.MapFragment"
         android:label="@string/title_map"
         tools:layout="@layout/fragment_map" />
-        <argument
-            android:name="currentLocation"
-            app:argType="android.location.Location" />
+
+    <fragment
+        android:id="@+id/navigation_addCamp"
+        android:name="com.felixwild.fahnenklauen.ui.addCamp.AddCampFragment"
+        android:label="@string/title_addCamp"
+        tools:layout="@layout/fragment_camp_add"/>
 </navigation>

@@ -2,8 +2,11 @@ package com.felixwild.fahnenklauen.database
 
 import android.location.Location
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.constraintlayout.helper.widget.Flow
 import com.felixwild.fahnenklauen.database.Camp.Companion.toCamp
+import com.felixwild.fahnenklauen.viewModels.LocationViewModel
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
@@ -17,7 +20,7 @@ import kotlinx.coroutines.tasks.await
 import java.util.*
 
 object FirebaseCampService {
-    private const val TAG = "FirebaseProfileService"
+    private const val TAG = "FirebaseCampService"
     private const val campCollection = "Camps"
 
     suspend fun getCampData(campId: String): Camp? {
@@ -36,30 +39,82 @@ object FirebaseCampService {
 
     suspend fun getAllCampData(): List<Camp> {
         val db = FirebaseFirestore.getInstance()
-         try {
-             return db.collection(campCollection).get().await().documents.mapNotNull { it.toCamp() }
+        return try {
+            db.collection(campCollection).get().await().documents.mapNotNull { it.toCamp() }
         } catch (e: Exception) {
-             Log.e(TAG, "Error getting user friends", e)
-             FirebaseCrashlytics.getInstance().log("Error getting user friends")
-             FirebaseCrashlytics.getInstance().setCustomKey("user id", "einFreak")
-             FirebaseCrashlytics.getInstance().recordException(e)
-             return emptyList()
+            if(e is FirebaseFirestoreException)
+                Log.e(TAG, "Error getting all camp data", e)
+            FirebaseCrashlytics.getInstance().log("Error getting all camp data")
+            FirebaseCrashlytics.getInstance().recordException(e)
+            emptyList()
         }
     }
 
-    /*
-    private fun getDistQuery(currentLocation: Location, distanceInKM: Float): Query {
-        val lat1km = 0.01
-        val long1km = 0.01
+    fun addCamp(campName: String, kidsActive: Boolean, tagOnly: Boolean, flag: Boolean, hasAdditionalRules: Boolean, numberParticipants: Double, additRules: String, currentRating: Double, location: GeoPoint) {
+        val db = FirebaseFirestore.getInstance()
 
-        val latMax = currentLocation.latitude + (lat1km*distanceInKM)
-        val latMin = currentLocation.latitude - (lat1km*distanceInKM)
-        val longMax = currentLocation.longitude + (long1km*distanceInKM)
-        val longMin = currentLocation.longitude - (long1km*distanceInKM)
+        val user = hashMapOf(
+                "campName" to campName,
+                "kidsActive" to kidsActive,
+                "tagOnly" to tagOnly,
+                "flag" to flag,
+                "hasAdditionalRules" to hasAdditionalRules,
+                "numberParticipants" to numberParticipants,
+                "additionalRules" to additRules,
+                "currentRating" to currentRating,
+                "location" to location)
 
-        val lesserGeoPoint = GeoPoint(latMin, longMin)
-        val greaterGeoPoint = GeoPoint(latMax, longMax)
-        return campCollection.whereGreaterThan("location", lesserGeoPoint).whereLessThan("location", greaterGeoPoint)
-    }*/
+        try {
+            db.collection("Camps")
+                .add(user)
+                .addOnSuccessListener { Log.d(TAG, "Camp added")}
+                .addOnFailureListener { Log.d(TAG, "adding Camp failed")}
+        } catch (e: Exception) {
+            Log.e(TAG, "Error adding Camp", e)
+            FirebaseCrashlytics.getInstance().log("Error adding Camp")
+            FirebaseCrashlytics.getInstance().recordException(e)
+        }
+    }
+
+    fun addCamp(currentCamp: Camp) {
+        val db = FirebaseFirestore.getInstance()
+
+        val user = hashMapOf(
+                "campName" to currentCamp.campName,
+                "kidsActive" to currentCamp.kidsActive,
+                "tagOnly" to currentCamp.tagOnly,
+                "flag" to currentCamp.flag,
+                "hasAdditionalRules" to currentCamp.hasAdditionalRules,
+                "numberParticipants" to currentCamp.numberParticipants,
+                "additionalRules" to currentCamp.additionalRules,
+                "currentRating" to currentCamp.currentRating,
+                "location" to currentCamp.location)
+
+        try {
+            db.collection("Camps")
+                    .add(user)
+                    .addOnSuccessListener { Log.d(TAG, "currentCamp added")}
+                    .addOnFailureListener { Log.d(TAG, "adding currentCamp failed")}
+        } catch (e: Exception) {
+            Log.e(TAG, "Error adding Camp", e)
+            FirebaseCrashlytics.getInstance().log("Error adding currentCamp")
+            FirebaseCrashlytics.getInstance().recordException(e)
+        }
+    }
+
+    fun removeCamp(CampId: String) {
+        val db = FirebaseFirestore.getInstance()
+        try {
+            db.collection("Camps").document(CampId)
+                .delete()
+                .addOnSuccessListener { Log.d(TAG, "Camp deleted") }
+                .addOnFailureListener { Log.d(TAG, "deleting Camp failed")}
+        } catch (e: Exception) {
+            Log.e(TAG, "Error adding Camp", e)
+            FirebaseCrashlytics.getInstance().log("Error adding Camp")
+            FirebaseCrashlytics.getInstance().setCustomKey("user id", "einFreak")
+            FirebaseCrashlytics.getInstance().recordException(e)
+        }
+    }
 
 }

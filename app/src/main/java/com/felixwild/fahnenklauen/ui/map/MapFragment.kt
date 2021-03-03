@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
@@ -30,7 +31,6 @@ import com.google.android.gms.maps.model.*
 
 class MapFragment : Fragment(), OnMapReadyCallback {
 
-    private lateinit var mapViewModel: MapViewModel
     private lateinit var mMap: GoogleMap
     private val TAG = "MapFragment"
     private val locationViewModel: LocationViewModel by activityViewModels()
@@ -43,15 +43,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        mapViewModel =
-                ViewModelProvider(this).get(MapViewModel::class.java)
+
         val root = inflater.inflate(R.layout.fragment_map, container, false)
-
-        val textView: TextView = root.findViewById(R.id.text_map)
-        mapViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
-        })
-
         val mapFragment =
             childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
 
@@ -73,7 +66,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             currentLocation = location
             current = LatLng(currentLocation.latitude, currentLocation.longitude)
             setCurrentLocation(current)
-            setCircleToLocationWithRadInM(current, 2000.0)
+            //setCircleToLocationWithRadInM(current, 2000.0)
         })
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 10F))
 
@@ -83,6 +76,13 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         campViewModel.allCamps.observe(viewLifecycleOwner, Observer { camps ->
             for (row in camps) {
                 val newMark = MarkerOptions().position(LatLng(row.location.latitude, row.location.longitude)).title(row.campName)
+                val locationMarkerIcon = getBitmapFromVector(
+                    requireContext(),
+                    R.drawable.ic_twotone_not_listed_location_24,
+                    ContextCompat.getColor(requireContext(), R.color.secondaryDarkColor)
+                )
+
+                newMark.icon(locationMarkerIcon)
                 mMap.addMarker(newMark)
             }
         })
@@ -114,8 +114,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private fun setCurrentLocation(location: LatLng) {
         val locationMarkerIcon = getBitmapFromVector(
             requireContext(),
-            R.drawable.ic_baseline_trip_origin_24,
-            resources.getColor(R.color.purple_200));
+            R.drawable.ic_baseline_my_location_24,
+            ContextCompat.getColor(requireContext(), R.color.primaryDarkColor)
+        )
 
         var newMarker = MarkerOptions()
             .anchor(0.5F, 0.5F)
@@ -130,7 +131,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         circle.center(location)
         circle.radius(radius)
         circle.visible(true)
-        circle.strokeColor(R.color.purple_500)
 
         mMap.addCircle(circle)
     }
