@@ -1,32 +1,36 @@
 package com.felixwild.fahnenklauen.viewModels
 
 import android.location.Location
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.felixwild.fahnenklauen.database.Camp
 import com.felixwild.fahnenklauen.database.FirebaseCampService
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.GeoPoint
 import kotlinx.coroutines.launch
-import kotlin.coroutines.coroutineContext
 
-class CampViewModel : ViewModel(){
+class CampViewModel() : ViewModel(){
     private val mutableAllCamps = MutableLiveData<List<Camp>>()
     val allCamps: LiveData<List<Camp>> get() = mutableAllCamps
 
     private val mutableCamp = MutableLiveData<Camp>()
     val selectedCamp : LiveData<Camp> get() = mutableCamp
 
+    private var authenticationState: LoginViewModel.AuthenticationState = LoginViewModel.AuthenticationState.UNAUTHENTICATED
+
     private val TAG = "CampViewModel"
 
     init {
-        viewModelScope.launch {
-            mutableAllCamps.value =
-                FirebaseCampService.getAllCampData()
-        }
+        if(authenticationState == LoginViewModel.AuthenticationState.AUTHENTICATED) {
+            viewModelScope.launch {
+                mutableAllCamps.value = FirebaseCampService.getAllCampData()
+            }
+        } else emptyList<Camp>()
+    }
+
+    fun setAuthState(passedState: LoginViewModel.AuthenticationState) {
+        authenticationState = passedState
     }
 
     fun sortCampData(allCamps: List<Camp>, currentLocation: Location): List<Camp> {
@@ -40,10 +44,11 @@ class CampViewModel : ViewModel(){
     }
 
     fun refreshAllCamps() {
-        viewModelScope.launch {
-            mutableAllCamps.value = FirebaseCampService.getAllCampData()
-
-        }
+        if(authenticationState == LoginViewModel.AuthenticationState.AUTHENTICATED) {
+            viewModelScope.launch {
+                mutableAllCamps.value = FirebaseCampService.getAllCampData()
+            }
+        } else emptyList<Camp>()
     }
 
     fun addCamp(

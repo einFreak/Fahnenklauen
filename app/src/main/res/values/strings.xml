@@ -41,6 +41,6 @@
     <string name="logout">Logout</string>
     <string name="login">Login</string>
     <string name="user_logged_out">" hat sich ausgeloggt</string>
-    <string name="hello_user">Hallo </string>
+    <string name="hello_user">Hallo\u0020</string>
     <string name="canceled_login_message">Login abgebrochen, kein Zugriff auf Lager Daten</string>
 </resources>

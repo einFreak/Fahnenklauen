@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="St. Konrad"
+        android:text="Sample Camp"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         app:layout_constraintEnd_toStartOf="@id/ct_dist"
         app:layout_constraintStart_toStartOf="parent"

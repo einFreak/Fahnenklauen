@@ -3,12 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/appbar_settings"
-        android:icon="@drawable/camp"
-        android:title="test"
-        app:showAsAction="ifRoom"/>
-
-    <item
         android:id="@+id/appbar_logout"
         android:title="@string/logout"
         android:contentDescription="@string/logout"

@@ -3,13 +3,11 @@ package com.felixwild.fahnenklauen.ui.map
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
@@ -18,10 +16,10 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.felixwild.fahnenklauen.R
 import com.felixwild.fahnenklauen.viewModels.CampViewModel
 import com.felixwild.fahnenklauen.viewModels.LocationViewModel
+import com.felixwild.fahnenklauen.viewModels.LoginViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -35,8 +33,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private val TAG = "MapFragment"
     private val locationViewModel: LocationViewModel by activityViewModels()
     private val campViewModel: CampViewModel by activityViewModels()
-    private var current = LatLng(0.0, 0.0)
-    private var currentLocation: Location = Location("")
+    private val loginViewModel: LoginViewModel by activityViewModels()
+    private var currentLocation = LatLng(0.0, 0.0)
+    private var currentLocationMarker: Marker? = null
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -60,50 +59,59 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         mMap.clear()
 
-        setCampsOnMap()
+        setCampsOnMapIfAuth()
 
         locationViewModel.currentLocation.observe(viewLifecycleOwner, Observer { location ->
-            currentLocation = location
-            current = LatLng(currentLocation.latitude, currentLocation.longitude)
-            setCurrentLocation(current)
+            currentLocation = LatLng(location.latitude, location.longitude)
+            setCurrentLocation(currentLocation)
             //setCircleToLocationWithRadInM(current, 2000.0)
         })
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 10F))
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 10F))
 
     }
 
-    private fun setCampsOnMap() {
-        campViewModel.allCamps.observe(viewLifecycleOwner, Observer { camps ->
-            for (row in camps) {
-                val newMark = MarkerOptions().position(LatLng(row.location.latitude, row.location.longitude)).title(row.campName)
-                val locationMarkerIcon = getBitmapFromVector(
-                    requireContext(),
-                    R.drawable.ic_twotone_not_listed_location_24,
-                    ContextCompat.getColor(requireContext(), R.color.secondaryDarkColor)
-                )
+    private fun setCampsOnMapIfAuth() {
+        loginViewModel.authenticationState.observe(viewLifecycleOwner, Observer { state ->
+            if (state == LoginViewModel.AuthenticationState.AUTHENTICATED) {
+                campViewModel.allCamps.observe(viewLifecycleOwner, Observer { camps ->
+                    for (row in camps) {
+                        val newMark = MarkerOptions().position(LatLng(row.location.latitude, row.location.longitude)).title(row.campName)
+                        val locationMarkerIcon: BitmapDescriptor?
+                        if (row.flag) {
+                            locationMarkerIcon = getBitmapFromVector(
+                                    R.drawable.ic_twotone_not_listed_location_24,
+                                    ContextCompat.getColor(requireContext(), R.color.green_state)
+                            )
+                        } else {
+                            locationMarkerIcon = getBitmapFromVector(
+                                    R.drawable.ic_twotone_not_listed_location_24,
+                                    ContextCompat.getColor(requireContext(), R.color.red_state)
+                            )
+                        }
 
-                newMark.icon(locationMarkerIcon)
-                mMap.addMarker(newMark)
+
+                        newMark.icon(locationMarkerIcon)
+                        mMap.addMarker(newMark)
+                    }
+                })
+            } else {
+                if (campViewModel.allCamps.hasObservers())
+                    campViewModel.allCamps.removeObservers(viewLifecycleOwner)
+                mMap.clear()
+                setCurrentLocation(currentLocation)
             }
         })
+
+
     }
 
-    fun getBitmapFromVector(
-        context: Context,
-        @DrawableRes vectorResourceId: Int,
-        @ColorInt tintColor: Int
-    ): BitmapDescriptor? {
-        val vectorDrawable = ResourcesCompat.getDrawable(
-            context.getResources(), vectorResourceId, null
-        )
+    private fun getBitmapFromVector(@DrawableRes vectorResourceId: Int, @ColorInt tintColor: Int): BitmapDescriptor? {
+        val vectorDrawable = ResourcesCompat.getDrawable(resources, vectorResourceId, null)
         if (vectorDrawable == null) {
             Log.e(TAG, "Requested vector resource was not found")
             return BitmapDescriptorFactory.defaultMarker()
         }
-        val bitmap = Bitmap.createBitmap(
-            vectorDrawable.intrinsicWidth,
-            vectorDrawable.intrinsicHeight, Bitmap.Config.ARGB_8888
-        )
+        val bitmap = Bitmap.createBitmap(vectorDrawable.intrinsicWidth, vectorDrawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         vectorDrawable.setBounds(0, 0, canvas.width, canvas.height)
         DrawableCompat.setTint(vectorDrawable, tintColor)
@@ -112,27 +120,29 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun setCurrentLocation(location: LatLng) {
-        val locationMarkerIcon = getBitmapFromVector(
-            requireContext(),
-            R.drawable.ic_baseline_my_location_24,
-            ContextCompat.getColor(requireContext(), R.color.primaryDarkColor)
-        )
+        if(currentLocationMarker != null) {
+            currentLocationMarker?.remove()
+            currentLocationMarker = null
+        }
 
-        var newMarker = MarkerOptions()
-            .anchor(0.5F, 0.5F)
-            .position(location)
-            .title("current Location")
-            .icon(locationMarkerIcon)
-        mMap.addMarker(newMarker)
+        if (currentLocationMarker == null) {
+            val locationMarkerIcon = getBitmapFromVector(
+                    R.drawable.ic_baseline_my_location_24,
+                    ContextCompat.getColor(requireContext(), R.color.primaryDarkColor)
+            )
+
+            val newMarker = MarkerOptions()
+                    .anchor(0.5F, 0.5F)
+                    .position(location)
+                    .title("current Location")
+                    .icon(locationMarkerIcon)
+            currentLocationMarker = mMap.addMarker(newMarker)
+        }
     }
 
-    private fun setCircleToLocationWithRadInM(location: LatLng, radius: Double) {
-        val circle = CircleOptions()
-        circle.center(location)
-        circle.radius(radius)
-        circle.visible(true)
-
-        mMap.addCircle(circle)
+    private fun setCircleToLocationWithRadInM(location: LatLng, radius: Double): Circle? {
+        val circle = CircleOptions().center(location).radius(radius).visible(true)
+        return mMap.addCircle(circle)
     }
 
 }

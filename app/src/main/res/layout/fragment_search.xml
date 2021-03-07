@@ -23,6 +23,27 @@
             android:imeOptions="actionSearch"
             app:iconifiedByDefault="false" />
 
+        <TextView
+            android:id="@+id/rv_text_overlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginVertical="32dp"
+            android:alpha="0.8"
+            android:autoSizeTextType="uniform"
+            android:background="@drawable/rounded_corner"
+            android:backgroundTint="@color/secondaryColor"
+            android:gravity="center"
+            android:text="Nicht eingeloggt\nCamps werden nicht angezeigt"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textSize="24sp"
+            android:visibility="gone"/>
+
+        <include layout="@layout/content_camp"
+            android:id="@+id/rv_sample_camp"
+            android:visibility="gone"/>
+
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view_camps"
             android:layout_width="match_parent"
