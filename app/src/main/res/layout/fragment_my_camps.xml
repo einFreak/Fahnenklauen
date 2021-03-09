@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.search.SearchFragment">
+    tools:context=".ui.MyCampsFragment">
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -13,14 +13,6 @@
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
-        <android.widget.SearchView
-            android:id="@+id/search_camp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/secondaryDarkColor"
-            android:imeOptions="actionSearch"
-            app:iconifiedByDefault="false" />
 
         <TextView
             android:id="@+id/rv_text_overlay"
@@ -38,13 +30,8 @@
             android:textSize="24sp"
             android:visibility="gone"/>
 
-        <include layout="@layout/content_camp"
-            android:id="@+id/rv_sample_camp"
-            android:visibility="gone"/>
-
-
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_camps"
+            android:id="@+id/recycler_view_my_camps"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:listitem="@layout/content_camp" />
@@ -62,4 +49,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:contentDescription="@string/fab_add_camp_description" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

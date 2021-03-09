@@ -7,9 +7,13 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.felixwild.fahnenklauen.ui.home.HomeFragment"
+        android:name="com.felixwild.fahnenklauen.ui.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_navigation_home_to_myCamps"
+            app:destination="@id/navigation_myCamps" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_search"
@@ -24,13 +28,35 @@
 
     <fragment
         android:id="@+id/navigation_map"
-        android:name="com.felixwild.fahnenklauen.ui.map.MapFragment"
+        android:name="com.felixwild.fahnenklauen.ui.MapFragment"
         android:label="@string/title_map"
         tools:layout="@layout/fragment_map" />
 
     <fragment
         android:id="@+id/navigation_addCamp"
-        android:name="com.felixwild.fahnenklauen.ui.addCamp.AddCampFragment"
-        android:label="@string/title_addCamp"
+        android:name="com.felixwild.fahnenklauen.ui.AddCampFragment"
+        android:label="@string/btn_addCamp"
         tools:layout="@layout/fragment_camp_add"/>
+
+    <fragment
+        android:id="@+id/navigation_myCamps"
+        android:name="com.felixwild.fahnenklauen.ui.MyCampsFragment"
+        android:label="@string/title_myCamps"
+        tools:layout="@layout/fragment_my_camps" >
+        <action
+            android:id="@+id/action_navigation_myCamps_to_navigation_addCamp"
+            app:destination="@id/navigation_addCamp" />
+        <action
+            android:id="@+id/action_navigation_myCamps_to_navigation_editCamp"
+            app:destination="@id/navigation_editCamp" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_editCamp"
+        android:name="com.felixwild.fahnenklauen.ui.EditCampFragment"
+        tools:layout="@layout/fragment_camp_edit" >
+        <argument
+            android:name="selectedCampId"
+            app:argType="string" />
+    </fragment>
 </navigation>

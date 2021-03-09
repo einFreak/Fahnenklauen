@@ -1,4 +1,4 @@
-package com.felixwild.fahnenklauen.ui.search
+package com.felixwild.fahnenklauen.ui
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -15,9 +15,6 @@ import com.felixwild.fahnenklauen.R
 import com.felixwild.fahnenklauen.database.Camp
 import com.felixwild.fahnenklauen.viewModels.CampViewModel
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-
 class CampDetailedFragment : Fragment() {
 
     private var campID: String? = null
@@ -26,10 +23,6 @@ class CampDetailedFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            campID = it.getString("selectedCamp")
-            campViewModel.getCamp(campID)
-        }
     }
 
     override fun onCreateView(

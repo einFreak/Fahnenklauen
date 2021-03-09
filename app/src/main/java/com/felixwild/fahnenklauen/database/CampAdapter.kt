@@ -7,22 +7,36 @@ import android.content.res.ColorStateList
 import android.location.Location
 import android.net.Uri
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.activityViewModels
+import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.felixwild.fahnenklauen.R
+import com.felixwild.fahnenklauen.ui.EditCampFragment
+import com.felixwild.fahnenklauen.ui.EditCampFragmentArgs
+import com.felixwild.fahnenklauen.ui.MyCampsFragmentDirections
+import com.felixwild.fahnenklauen.viewModels.CampViewModel
+import com.google.android.material.snackbar.Snackbar
 import java.util.*
 import kotlin.collections.ArrayList
 
 
-class CampAdapter() : RecyclerView.Adapter<CampAdapter.RVCampViewHolder>(), Filterable  {
+class CampAdapter(myCamps: Boolean = false) : RecyclerView.Adapter<CampAdapter.RVCampViewHolder>(), Filterable  {
 
     private var allCamps: List<Camp> = ArrayList()
     private var filteredCamps: List<Camp> = ArrayList()
     private var currentLocation: Location = Location("")
     private var filterActive: Boolean = false
+    private var isMyCamps: Boolean = false
+
+    init {
+        isMyCamps = myCamps
+    }
 
     fun setCamps(camps: List<Camp>, currentLocation: Location) {
         this.allCamps = camps
@@ -80,6 +94,28 @@ class CampAdapter() : RecyclerView.Adapter<CampAdapter.RVCampViewHolder>(), Filt
             startNavigation(context = holderRV.itemView.context, intent = intent, destinationName = currentCamp.campName)
         }
 
+        if(isMyCamps) {
+            holderRV.btnOptions.visibility = View.VISIBLE
+
+            holderRV.btnOptions.setOnClickListener{
+                val popup = PopupMenu(holderRV.itemView.context, holderRV.btnOptions)
+                popup.inflate(R.menu.rv_options_menu)
+
+                popup.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.rv_edit -> {
+                            val action = MyCampsFragmentDirections.actionNavigationMyCampsToNavigationEditCamp(currentCamp.campID)
+                            holderRV.itemView.findNavController().navigate(action)
+                            true
+                        }
+                        else -> false
+                    }
+                }
+
+                popup.show()
+            }
+        }
+
         holderRV.btnMore.setOnClickListener {
 
         }
@@ -90,7 +126,7 @@ class CampAdapter() : RecyclerView.Adapter<CampAdapter.RVCampViewHolder>(), Filt
 
     }
 
-    private fun startNavigation (context: Context, intent: Intent, destinationName: String) {
+    private fun startNavigation(context: Context, intent: Intent, destinationName: String) {
         val builder: AlertDialog.Builder = context.let {
             AlertDialog.Builder(it)
         }
@@ -158,6 +194,7 @@ class CampAdapter() : RecyclerView.Adapter<CampAdapter.RVCampViewHolder>(), Filt
         val btnMore: Button = campView.findViewById(R.id.ct_btn_more)
         val btnStartNav: Button = campView.findViewById(R.id.ct_nav_btn)
         val ratingBar: RatingBar = campView.findViewById(R.id.ct_ratingBar)
+        val btnOptions: TextView = campView.findViewById(R.id.ct_options)
     }
 
 }

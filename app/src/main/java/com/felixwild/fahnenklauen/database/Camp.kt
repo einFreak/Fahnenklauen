@@ -14,7 +14,7 @@ data class Camp (var campID: String,
                  var hasAdditionalRules: Boolean,
                  var numberParticipants: Int,
                  var additionalRules: String,
-                 var currentRating: Int,
+                 var currentRating: Float,
                  var location: GeoPoint,
                  var distanceInM: Float) {
 
@@ -28,7 +28,7 @@ data class Camp (var campID: String,
                 val hasAdditionalRules = getBoolean("hasAdditionalRules")!!
                 val numberParticipants = getDouble("numberParticipants")!!.toInt()
                 val additionalRules = getString("additionalRules")!!
-                val currentRating: Int = getDouble("currentRating")!!.toInt()
+                val currentRating: Float = getDouble("currentRating")!!.toFloat()
                 val location = getGeoPoint("location")!!
 
                 return Camp(id, campName, kidsActive, tagOnly, flag, hasAdditionalRules, numberParticipants, additionalRules, currentRating, location, 0.0F)

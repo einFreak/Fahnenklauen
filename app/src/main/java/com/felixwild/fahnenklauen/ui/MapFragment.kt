@@ -1,4 +1,4 @@
-package com.felixwild.fahnenklauen.ui.map
+package com.felixwild.fahnenklauen.ui
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
@@ -36,6 +37,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private val loginViewModel: LoginViewModel by activityViewModels()
     private var currentLocation = LatLng(0.0, 0.0)
     private var currentLocationMarker: Marker? = null
+    private lateinit var mapTextOverly: TextView
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -46,6 +48,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         val root = inflater.inflate(R.layout.fragment_map, container, false)
         val mapFragment =
             childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+
+        mapTextOverly = root.findViewById(R.id.map_text_overlay)
 
         mapFragment?.getMapAsync(this)
 
@@ -73,6 +77,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private fun setCampsOnMapIfAuth() {
         loginViewModel.authenticationState.observe(viewLifecycleOwner, Observer { state ->
             if (state == LoginViewModel.AuthenticationState.AUTHENTICATED) {
+                mapTextOverly.visibility = View.GONE
+                campViewModel.refreshAllCamps()
+
                 campViewModel.allCamps.observe(viewLifecycleOwner, Observer { camps ->
                     for (row in camps) {
                         val newMark = MarkerOptions().position(LatLng(row.location.latitude, row.location.longitude)).title(row.campName)
@@ -98,6 +105,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 if (campViewModel.allCamps.hasObservers())
                     campViewModel.allCamps.removeObservers(viewLifecycleOwner)
                 mMap.clear()
+                mapTextOverly.visibility = View.VISIBLE
                 setCurrentLocation(currentLocation)
             }
         })

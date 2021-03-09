@@ -1,7 +1,10 @@
 package com.felixwild.fahnenklauen.viewModels
 
+import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat.startActivityForResult
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import com.felixwild.fahnenklauen.MainActivity
@@ -15,8 +18,8 @@ open class LoginViewModel  : ViewModel() {
         const val RC_SIGN_IN = 1002
         // Choose authentication providers
         val loginProviders = arrayListOf(
-                AuthUI.IdpConfig.EmailBuilder().build(),
-                AuthUI.IdpConfig.GoogleBuilder().build())
+            AuthUI.IdpConfig.EmailBuilder().build(),
+            AuthUI.IdpConfig.GoogleBuilder().build())
     }
 
     enum class AuthenticationState {
@@ -34,12 +37,12 @@ open class LoginViewModel  : ViewModel() {
     fun createSignInIntent(activity: AppCompatActivity) {
         // Create and launch sign-in intent
         activity.startActivityForResult(
-                AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setAvailableProviders(LoginViewModel.loginProviders)
-                        .build(),
-                LoginViewModel.RC_SIGN_IN
+            AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(LoginViewModel.loginProviders)
+                .build(),
+            RC_SIGN_IN
         )
     }
-
 }
+

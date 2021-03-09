@@ -9,9 +9,11 @@
     <TextView
         android:id="@+id/ct_campName"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:autoSizeTextType="uniform"
         android:text="Sample Camp"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         app:layout_constraintEnd_toStartOf="@id/ct_dist"
@@ -97,7 +99,7 @@
         android:text="km entfernt"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintBottom_toBottomOf="@+id/ct_dist"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/ct_options"
         app:layout_constraintStart_toStartOf="@+id/ct_nav_btn"
         app:layout_constraintTop_toTopOf="@+id/ct_dist" />
 
@@ -107,11 +109,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:enabled="false"
-        android:text="mehr"
-        app:layout_constraintBottom_toBottomOf="@+id/ct_text_number_participants"
-        app:layout_constraintEnd_toEndOf="@id/ct_dist_text"
-        app:layout_constraintStart_toStartOf="@+id/ct_dist"
+        android:text="@string/btn_more"
         app:layout_constraintTop_toBottomOf="@+id/ct_campName"
+        app:layout_constraintBottom_toBottomOf="@+id/ct_text_number_participants"
+        app:layout_constraintEnd_toEndOf="@id/ct_nav_btn"
+        app:layout_constraintStart_toStartOf="@+id/ct_dist"
         tools:visibility="visible" />
 
     <RatingBar
@@ -135,5 +137,24 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/ct_ratingBar"
         app:layout_constraintTop_toTopOf="@+id/ct_ratingBar" />
+
+    <TextView
+        android:id="@+id/ct_options"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:autoSizeTextType="uniform"
+        android:background="@drawable/rounded_corner"
+        android:backgroundTint="#2A000000"
+        android:gravity="center"
+        android:onClick="showPopup"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:text="&#8942;"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        app:layout_constraintBottom_toBottomOf="@id/ct_campName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/ct_campName" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

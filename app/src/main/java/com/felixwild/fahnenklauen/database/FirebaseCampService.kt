@@ -7,6 +7,7 @@ import androidx.constraintlayout.helper.widget.Flow
 import com.felixwild.fahnenklauen.database.Camp.Companion.toCamp
 import com.felixwild.fahnenklauen.viewModels.LocationViewModel
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
@@ -50,6 +51,21 @@ object FirebaseCampService {
         }
     }
 
+    suspend fun getMyCampsData(userId: String): List<Camp> {
+        val db = FirebaseFirestore.getInstance()
+        return try {
+            db.collection(campCollection)
+                .whereEqualTo("owner", userId)
+                .get().await().documents.mapNotNull { it.toCamp() }
+        } catch (e: Exception) {
+            if(e is FirebaseFirestoreException)
+                Log.e(TAG, "Error getting owner camp data", e)
+            FirebaseCrashlytics.getInstance().log("Error getting owner camp data")
+            FirebaseCrashlytics.getInstance().recordException(e)
+            emptyList()
+        }
+    }
+
     fun addCamp(campName: String, kidsActive: Boolean, tagOnly: Boolean, flag: Boolean, hasAdditionalRules: Boolean, numberParticipants: Double, additRules: String, currentRating: Double, location: GeoPoint) {
         val db = FirebaseFirestore.getInstance()
 
@@ -62,7 +78,9 @@ object FirebaseCampService {
                 "numberParticipants" to numberParticipants,
                 "additionalRules" to additRules,
                 "currentRating" to currentRating,
-                "location" to location)
+                "location" to location,
+                "owner" to (FirebaseAuth.getInstance().currentUser?.uid ?: "")
+        )
 
         try {
             db.collection("Camps")
@@ -88,7 +106,9 @@ object FirebaseCampService {
                 "numberParticipants" to currentCamp.numberParticipants,
                 "additionalRules" to currentCamp.additionalRules,
                 "currentRating" to currentCamp.currentRating,
-                "location" to currentCamp.location)
+                "location" to currentCamp.location,
+                "owner" to (FirebaseAuth.getInstance().currentUser?.uid ?: "")
+        )
 
         try {
             db.collection("Camps")

@@ -17,12 +17,15 @@ class CampViewModel() : ViewModel(){
     private val mutableCamp = MutableLiveData<Camp>()
     val selectedCamp : LiveData<Camp> get() = mutableCamp
 
-    private var authenticationState: LoginViewModel.AuthenticationState = LoginViewModel.AuthenticationState.UNAUTHENTICATED
+    private val mutableMyCamps = MutableLiveData<List<Camp>>()
+    val myCamps : LiveData<List<Camp>> get() = mutableMyCamps
+
+    private var isAuthenticated = false
 
     private val TAG = "CampViewModel"
 
     init {
-        if(authenticationState == LoginViewModel.AuthenticationState.AUTHENTICATED) {
+        if(isAuthenticated) {
             viewModelScope.launch {
                 mutableAllCamps.value = FirebaseCampService.getAllCampData()
             }
@@ -30,7 +33,7 @@ class CampViewModel() : ViewModel(){
     }
 
     fun setAuthState(passedState: LoginViewModel.AuthenticationState) {
-        authenticationState = passedState
+        isAuthenticated = passedState == LoginViewModel.AuthenticationState.AUTHENTICATED
     }
 
     fun sortCampData(allCamps: List<Camp>, currentLocation: Location): List<Camp> {
@@ -44,9 +47,17 @@ class CampViewModel() : ViewModel(){
     }
 
     fun refreshAllCamps() {
-        if(authenticationState == LoginViewModel.AuthenticationState.AUTHENTICATED) {
+        if(isAuthenticated) {
             viewModelScope.launch {
                 mutableAllCamps.value = FirebaseCampService.getAllCampData()
+            }
+        } else emptyList<Camp>()
+    }
+
+    fun getMyCamps(userId: String?) {
+        if (userId != null) {
+            viewModelScope.launch {
+                mutableMyCamps.value = FirebaseCampService.getMyCampsData(userId)
             }
         } else emptyList<Camp>()
     }
@@ -84,6 +95,10 @@ class CampViewModel() : ViewModel(){
                 mutableCamp.value = FirebaseCampService.getCampData(campID)
             }
         }
+    }
+
+    fun updateCamp(camp: Camp) {
+
     }
 
 }

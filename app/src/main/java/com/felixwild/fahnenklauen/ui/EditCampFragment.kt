@@ -1,16 +1,17 @@
-package com.felixwild.fahnenklauen.ui.addCamp
+package com.felixwild.fahnenklauen.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
+import androidx.navigation.fragment.navArgs
 import com.felixwild.fahnenklauen.R
+import com.felixwild.fahnenklauen.database.Camp
 import com.felixwild.fahnenklauen.viewModels.CampViewModel
-import com.felixwild.fahnenklauen.viewModels.LocationViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -20,17 +21,15 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 
 
-class AddCampFragment: Fragment(), OnMapReadyCallback {
+class EditCampFragment: Fragment(), OnMapReadyCallback {
 
-    private val locationViewModel: LocationViewModel by activityViewModels()
     private val campViewModel: CampViewModel by activityViewModels()
-    private var currentGeoPoint: GeoPoint = GeoPoint(0.0, 0.0)
+    private lateinit var thisCamp: Camp
     private lateinit var mMap: GoogleMap
-    private lateinit var buttonAddCamp: Button
+    private lateinit var buttonUpdateCamp: Button
     private lateinit var buttonShowMap: Button
     private lateinit var buttonCloseMap: ImageButton
     private lateinit var frameMap: FrameLayout
@@ -43,6 +42,7 @@ class AddCampFragment: Fragment(), OnMapReadyCallback {
     private lateinit var checkTagOnly : CheckBox
     private lateinit var checkKidsActive : CheckBox
     private lateinit var inputAdditionalRulesLayout : TextInputLayout
+    private lateinit var ratingBar: RatingBar
     private val TAG = "AddCampFragment"
 
     override fun onCreateView(
@@ -50,11 +50,7 @@ class AddCampFragment: Fragment(), OnMapReadyCallback {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_camp_add, container, false)
-
-        locationViewModel.currentGeoPoint.observe(viewLifecycleOwner, Observer { location ->
-            currentGeoPoint = location
-        })
+        val root = inflater.inflate(R.layout.fragment_camp_edit, container, false)
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.addCamp_map) as SupportMapFragment?
 
@@ -66,33 +62,62 @@ class AddCampFragment: Fragment(), OnMapReadyCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        inputCampName = requireActivity().findViewById<TextInputEditText>(R.id.inputCampName)
-        inputNumberParticipants = requireActivity().findViewById<TextInputEditText>(R.id.inputNumberParticipants)
-        inputAdditionalRules = requireActivity().findViewById<TextInputEditText>(R.id.inputAdditionalRules)
-        inputLatitude = requireActivity().findViewById<TextInputEditText>(R.id.inputLatitude)
-        inputLongitude = requireActivity().findViewById<TextInputEditText>(R.id.inputLongitude)
-        inputAdditionalRulesLayout = requireView().findViewById<TextInputLayout>(R.id.inputAdditionalRulesLayout)
+        inputCampName = requireView().findViewById(R.id.inputCampName)
+        inputNumberParticipants = requireView().findViewById(R.id.inputNumberParticipants)
+        inputAdditionalRules = requireView().findViewById(R.id.inputAdditionalRules)
+        inputLatitude = requireView().findViewById(R.id.inputLatitude)
+        inputLongitude = requireView().findViewById(R.id.inputLongitude)
+        inputAdditionalRulesLayout = requireView().findViewById(R.id.inputAdditionalRulesLayout)
         buttonCloseMap = requireView().findViewById(R.id.btn_closeSelectionMap)
         buttonShowMap = requireView().findViewById(R.id.btn_showSelectionMap)
-        buttonAddCamp = requireView().findViewById(R.id.btn_add_article_commit)
+        buttonUpdateCamp = requireView().findViewById(R.id.btn_update_camp_commit)
         frameMap = requireView().findViewById(R.id.frame_SelectionMap)
         checkAdditionalRules = requireView().findViewById(R.id.checkAddtitionalRules)
         checkKidsActive = requireView().findViewById(R.id.checkKidsActive)
         checkTagOnly = requireView().findViewById(R.id.checkTagOnly)
+        ratingBar = requireView().findViewById(R.id.ratingBar_selected_camp)
+
+        val args: EditCampFragmentArgs by navArgs()
+//
+//        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+//            val tv: TextView = view.findViewById(R.id.textViewAmount)
+//            val amount = args.amount
+//            tv.text = amount.toString()
+//        }
+        campViewModel.getCamp(args.selectedCampId)
+        campViewModel.selectedCamp.observe(viewLifecycleOwner, {
+            thisCamp = it
+            inputCampName.setText(it.campName)
+            inputNumberParticipants.setText(it.numberParticipants.toString())
+            inputAdditionalRules.setText(it.additionalRules.toString())
+            inputLatitude.setText(it.location.latitude.toString())
+            inputLongitude.setText(it.location.longitude.toString())
+            if (it.hasAdditionalRules) {
+                inputAdditionalRulesLayout.visibility = View.VISIBLE
+            } else {
+                inputAdditionalRulesLayout.visibility = View.GONE
+            }
+            checkKidsActive.isChecked = it.kidsActive
+            checkTagOnly.isChecked = it.tagOnly
+            checkAdditionalRules.isChecked = it.hasAdditionalRules
+            ratingBar.rating = it.currentRating
+
+        })
+
     }
 
     override fun onMapReady(p0: GoogleMap?) {
         if (p0 != null) {
             mMap = p0
         }
-        mMap.moveCamera(
-            CameraUpdateFactory.newLatLngZoom(
-                LatLng(
-                    currentGeoPoint.latitude,
-                    currentGeoPoint.longitude
-                ), 10F
-            )
-        )
+//        mMap.moveCamera(
+//            CameraUpdateFactory.newLatLngZoom(
+//                LatLng(
+//                    currentGeoPoint.latitude,
+//                    currentGeoPoint.longitude
+//                ), 10F
+//            )
+//        )
         setupOnClickListener()
 
         mMap.setOnMapClickListener {
@@ -104,27 +129,40 @@ class AddCampFragment: Fragment(), OnMapReadyCallback {
         }
     }
 
-    private fun addDataToFirestore() {
-        var db = FirebaseFirestore.getInstance()
-        var additRules: String = if (inputAdditionalRules.text.isNullOrEmpty())
-            ""
+    private fun updateDataAtFirestore() {
+        val additRules: String = if (!checkAdditionalRules.isChecked) ""
         else
             inputAdditionalRules.text.toString()
 
-        campViewModel.addCamp(
-            campName = inputCampName.text.toString(),
-            kidsActive = checkKidsActive.isChecked,
-            tagOnly = checkTagOnly.isChecked,
-            flag = true,
-            hasAdditionalRules = checkAdditionalRules.isChecked,
-            numberParticipants = inputNumberParticipants.text.toString().toDouble(),
-            additionalRules = additRules,
-            currentRating = 0.0,
-            location = GeoPoint(
-                inputLatitude.text.toString().toDouble(),
-                inputLongitude.text.toString().toDouble()
-            )
-        )
+//        campName = inputCampName.text.toString(),
+//        kidsActive = checkKidsActive.isChecked,
+//        tagOnly = checkTagOnly.isChecked,
+//        flag = true,
+//        hasAdditionalRules = checkAdditionalRules.isChecked,
+//        numberParticipants = inputNumberParticipants.text.toString().toDouble(),
+//        additionalRules = additRules,
+//        currentRating = 0.0,
+//        location = GeoPoint(
+//                inputLatitude.text.toString().toDouble(),
+//                inputLongitude.text.toString().toDouble()
+//        )
+//
+//
+//        campViewModel.updateCamp(
+//            campName = inputCampName.text.toString(),
+//            kidsActive = checkKidsActive.isChecked,
+//            tagOnly = checkTagOnly.isChecked,
+//            flag = true,
+//            hasAdditionalRules = checkAdditionalRules.isChecked,
+//            numberParticipants = inputNumberParticipants.text.toString().toDouble(),
+//            additionalRules = additRules,
+//            currentRating = 0.0,
+//            location = GeoPoint(
+//                inputLatitude.text.toString().toDouble(),
+//                inputLongitude.text.toString().toDouble()
+//            )
+//        )
+        Log.i(TAG, "Camp added")
 
     }
 
@@ -145,12 +183,12 @@ class AddCampFragment: Fragment(), OnMapReadyCallback {
 
     private fun setupOnClickListener() {
 
-        buttonAddCamp.setOnClickListener {
+        buttonUpdateCamp.setOnClickListener {
             if (checkInputOk()) {
-                addDataToFirestore()
+//                TODO updateDataAtFirestore()
                 Snackbar.make(
                     requireView(),
-                    "Lager hinzugefügt",
+                    "Lager aktualisiert",
                     Snackbar.LENGTH_LONG
                 ).show()
                 requireActivity().onBackPressed()
